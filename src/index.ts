@@ -21,7 +21,11 @@ app.post(`/signup`, async (req, res) => {
 		},
 	});
 
-	res.send(await prisma.user.findUnique({ where: { id: user.id } }));
+	const createdUser = await prisma.user.findUnique({
+		where: { id: user.id },
+	});
+
+	res.json({ ...createdUser, password_hash: null });
 });
 
 const server = app.listen(5000, () =>
