@@ -34,6 +34,45 @@ const authService = {
 			});
 		}
 	},
+
+	signIn: async (user: { email: string; password: string }) => {
+		try {
+			const { email, password } = user;
+
+			const foundUser = await prisma.user.findUnique({
+				where: {
+					email,
+				},
+			});
+
+			if (!foundUser) {
+				return Promise.reject({
+					message: "AuthService: signInMethod - User not found",
+				});
+			}
+
+			const passwordMatch = await bcrypt.compare(
+				password,
+				foundUser.password_hash
+			);
+
+			if (!passwordMatch) {
+				return Promise.reject({
+					message: "AuthService: signInMethod - Incorrect password",
+				});
+			}
+
+			return Promise.resolve({
+				...foundUser,
+				password_hash: null,
+			});
+		} catch (error) {
+			console.log("AuthService: signInMethod - error: ", error);
+			return Promise.reject({
+				message: "AuthService: signInMethod - Error signing in",
+			});
+		}
+	},
 };
 
 export default authService;
