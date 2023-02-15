@@ -18,12 +18,21 @@ authRouter.post(`/signin`, async (req, res) => {
 	try {
 		const user = await authService.signIn({ email, password });
 		return res
-			.cookie("linkedin-cookie", "token", {
+			.cookie("linkedin-cookie", user.email, {
 				httpOnly: true,
 				expires: new Date(Date.now() + 900000),
 			})
 			.status(200)
 			.json(user);
+	} catch (error: any) {
+		return res.status(400).json({ message: error.message });
+	}
+});
+
+authRouter.get("/check", async (req, res) => {
+	try {
+		const user = await authService.check(req.cookies["linkedin-cookie"]);
+		return res.status(200).json(user);
 	} catch (error: any) {
 		return res.status(400).json({ message: error.message });
 	}

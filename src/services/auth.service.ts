@@ -73,6 +73,31 @@ const authService = {
 			});
 		}
 	},
+	check: async (cookie: string) => {
+		try {
+			const foundUser = await prisma.user.findUnique({
+				where: {
+					email: cookie,
+				},
+			});
+
+			if (!foundUser) {
+				return Promise.reject({
+					message: "AuthService: checkMethod - User not found",
+				});
+			}
+
+			return Promise.resolve({
+				...foundUser,
+				password_hash: null,
+			});
+		} catch (error) {
+			console.log("AuthService: checkMethod - error: ", error);
+			return Promise.reject({
+				message: "AuthService: checkMethod - Error checking user",
+			});
+		}
+	},
 };
 
 export default authService;
